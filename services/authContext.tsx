@@ -1,75 +1,61 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import { setAuthToken } from "./supabase";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthResponse } from '../types';
-import { invokeEdgeFunction, setAuthToken } from './supabase';
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (nick: string, pass: string) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+interface AuthUser {
+  id: string;
+  nick: string;
+  role: string;
+  full_name?: string;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+interface AuthContextType {
+  user: AuthUser | null;
+  token: string | null;
+  login: (user: AuthUser, token: string) => Promise<void>;
+  logout: () => void;
+}
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children }: any) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
+  // Carregar token e usuário armazenado
   useEffect(() => {
-    // Check local storage on mount
-    const storedUser = localStorage.getItem('erp_user');
-    const storedToken = localStorage.getItem('erp_token');
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
-      setAuthToken(storedToken); // Initialize Supabase client with token
+    const savedUser = localStorage.getItem("erp_user");
+    const savedToken = localStorage.getItem("erp_token");
+
+    if (savedUser && savedToken) {
+      setUser(JSON.parse(savedUser));
+      setToken(savedToken);
+      setAuthToken(savedToken);
     }
-    setIsLoading(false);
   }, []);
 
-  const login = async (nick: string, pass: string) => {
-    setIsLoading(true);
-    try {
-      // Call the Edge Function 'auth-login'
-      const response = await invokeEdgeFunction<AuthResponse>('auth-login', { nick, password: pass });
-      
-      setUser(response.user);
-      setToken(response.token);
-      setAuthToken(response.token); // Set Supabase client token
-      
-      localStorage.setItem('erp_user', JSON.stringify(response.user));
-      localStorage.setItem('erp_token', response.token);
-    } catch (error) {
-      console.error("Login failed", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  const login = async (user: AuthUser, token: string) => {
+    localStorage.setItem("erp_user", JSON.stringify(user));
+    localStorage.setItem("erp_token", token);
+
+    setUser(user);
+    setToken(token);
+
+    setAuthToken(token);
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
-    setAuthToken(null); // Clear Supabase client token
-    localStorage.removeItem('erp_user');
-    localStorage.removeItem('erp_token');
+    localStorage.removeItem("erp_user");
+    localStorage.removeItem("erp_token");
+    setAuthToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext)!;

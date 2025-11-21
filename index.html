@@ -2,59 +2,45 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://lucide.dev/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/icon-512.png" />
+
+    <!-- Mobile / PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#0f172a" />
+    <link rel="manifest" href="/manifest.json" />
+
     <title>ConstruERP Pro - Gestão de Construtoras</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0f172a">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                50: '#eff6ff',
-                100: '#dbeafe',
-                200: '#bfdbfe',
-                300: '#93c5fd',
-                400: '#60a5fa',
-                500: '#3b82f6',
-                600: '#2563eb',
-                700: '#1d4ed8',
-                800: '#1e40af',
-                900: '#1e3a8a',
-              }
-            }
-          }
+
+    <!-- Import Maps -->
+    <script type="importmap">
+      {
+        "imports": {
+          "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
+          "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "react": "https://aistudiocdn.com/react@^19.2.0",
+          "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.84.0"
         }
       }
     </script>
-  <script type="importmap">
-{
-  "imports": {
-    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.84.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
+
+  </head>
+
   <body class="bg-slate-50 text-slate-900 antialiased">
     <div id="root"></div>
+
     <script type="module" src="/index.tsx"></script>
+
+    <!-- Service Worker (funciona no Vercel) -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
+          navigator.serviceWorker
+            .register('/service-worker.js', { scope: '/' })
             .then(reg => console.log('SW registered!', reg))
-            .catch(err => console.log('SW failed', err));
+            .catch(err => console.error('SW registration failed:', err));
         });
       }
     </script>
