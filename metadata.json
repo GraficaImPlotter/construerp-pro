@@ -1,0 +1,5 @@
+{
+  "name": "ConstruERP Pro",
+  "description": "A complete, secure, and modern ERP for construction companies with custom authentication, fiscal integration (NF-e/NFS-e), and PWA capabilities.",
+  "requestFramePermissions": []
+}
